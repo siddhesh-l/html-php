@@ -10,27 +10,42 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
    $gender = $_POST["gender"];
    $usertype = $_POST["usertype"];
 
-   echo $name; die;
+   // echo $name; die;
 
    $alertclass = "";
+   $user_password = $password;
+   $pattern = "/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$/";
 
-   if(empty($name) || empty($email) || empty($password) || empty($phone) || empty($gender) || empty($usertype)){
+   if(empty($name) || empty($email) || empty($password) || empty($phone) || empty($gender) || empty($usertype))
+   {
       $alertclass = "alert-danger";
       $message = "All Field are required.";
-   }else if(!filter_var($email, FILTER_VALIDATE_EMAL)){
+   }
+   else if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+   {
       $alertclass = "alert-danger";
       $message = "Enter valid email";
-   }else if(!strlen($password) < 8){
+   }
+   else if(preg_match($pattern, $user_password))
+   {
       $alertclass = "alert-warning";
-      $message = "Password should be at least 8 character long";
-   }else if($usertype !== "user" && $usertype !== "admin"){
+      $message = "Please Enter Proper Password";
+   }
+
+   else if($usertype !== "user" && $usertype !== "admin")
+   {
       $alertclass = "alert-warning";
       $message = "invalid user type selected";
-   }else{
-      if($email === "siddhesh@gmail.com"){
+   }
+   else
+   {
+      if($email === "siddhesh@gmail.com")
+      {
          $message = "alert-info";
          $message = "Email already exists";
-      }else{
+      }
+      else
+      {
          $message = "alert-successful";
          $message = "Registration Successful";
       }
