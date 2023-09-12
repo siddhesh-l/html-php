@@ -1,6 +1,17 @@
+<?php
+session_start();
+// var_dump($_SESSION);
+error_reporting(0);
 
+if (!isset($_SESSION['id'])) {
+   header('location:http://localhost/siddhesh/php2/login.php');
+   exit();
+}
 
-
+// echo $_SESSION['id'];
+// echo $_SESSION['name'];
+// echo $_SESSION['email'];
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -88,15 +99,17 @@
 
    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
-         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01"
-            aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
          </button>
          <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-            <a class="navbar-brand" href="../backend/dummy.html">Hi Siddhesh</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-               data-bs-target="#navbarNavDarkDropdown" aria-controls="navbarNavDarkDropdown" aria-expanded="false"
-               aria-label="Toggle navigation">
+            <a class="navbar-brand" href="profilepage.html">
+               <?php
+               if (isset($_SESSION['name'])) {
+                  echo "Welcome  " . $_SESSION['name'];
+               } ?>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDarkDropdown" aria-controls="navbarNavDarkDropdown" aria-expanded="false" aria-label="Toggle navigation">
                <span class="navbar-toggler-icon"></span>
             </button>
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -105,7 +118,7 @@
             <form class="d-flex" role="search">
 
 
-               <button class="btn btn-outline-danger me-2" type="button">Logout</button>
+               <a href="logout.php"><button class="btn btn-outline-danger me-2" type="button">Logout</button></a>
             </form>
          </div>
       </div>
@@ -114,16 +127,13 @@
    <div class="container mt-3">
       <nav class="navbar navbar-expand-lg">
          <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-               data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-               aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                   <li class="nav-item dropdown">
-                     <a class="nav-link dropdown-toggle bg-light" href="#" role="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                     <a class="nav-link dropdown-toggle bg-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Dropdown Button
                      </a>
                      <ul class="dropdown-menu">
@@ -141,16 +151,13 @@
 
                      <span class="input-group-text" id="basic-addon1">
                         <button class="btn" type="submit" style="width: 20px; padding: 0%; margin:0%; height: 30px;">
-                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                              class="bi bi-search custome-search-btn" viewBox="0 0 16 16">
-                              <path
-                                 d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search custome-search-btn" viewBox="0 0 16 16">
+                              <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
                            </svg>
                         </button>
                      </span>
 
-                     <input type="text" class="form-control me-2" placeholder="Username" aria-label="Username"
-                        aria-describedby="basic-addon1">
+                     <input type="text" class="form-control me-2" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
                   </div>
                </form>
             </div>
@@ -174,51 +181,79 @@
             <tbody class="tb">
                <!-- Rows of user data will be added here -->
                <!-- Example row -->
-               <?php 
-               error_reporting(0);
-
+               <?php
                include 'db_helper.php';
 
-               $record_per_page = 10;
-               $current_page = isset($_GET['page']) ? $_GET['page']:1;
-               $offset = ($current_page - 1) * $record_per_page;
+               // Define the number of records per page
+               $recordsPerPage = 10;
 
-               $sql = "SELECT * FROM users LIMIT $offset, $record_per_page";
+               // Get the current page number from the URL, default to page 1
+               $current_page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 
-               $result = $conn -> query($sql);
+               // Calculate the offset
+               $offset = ($current_page - 1) * $recordsPerPage;
 
-               if($result -> num_rows > 0){
-                  while($row = $result -> fetch_assoc()){
+               $user_id = $_SESSION['id'];
+
+               // Query to fetch data for the current page
+               $sql = "SELECT * FROM users WHERE id != $user_id LIMIT $offset, $recordsPerPage";
+               $result = mysqli_query($conn, $sql);
+
+               // Check if there are records to display
+               if (mysqli_num_rows($result) > 0) {
+                  while ($row = mysqli_fetch_assoc($result)) {
                      echo "<tr>";
-                     echo "<td>".$row["id"]."</td>";
-                     echo "<td>".$row["username"]."</td>";
-                     echo "<td>".$row["email"]."</td>";
-                     echo "<td>".$row["phone"]."</td>";
-                     echo "<td>".$row["gender"]."</td>";
-                     echo "<td>".$row["usertype"]."</td>";
+                     echo "<td>" . $row["id"] . "</td>";
+                     echo "<td>" . $row["username"] . "</td>";
+                     echo "<td>" . $row["email"] . "</td>";
+                     echo "<td>" . $row["phone"] . "</td>";
+                     echo "<td>" . $row["gender"] . "</td>";
+                     echo "<td>" . $row["usertype"] . "</td>";
                      echo "<td><a href='update.php?id=" . $row["id"] . "'><i class='bi bi-pencil-square'></i></a></td>";
                      echo "<td><a href='delete.php?id=" . $row["id"] . "'><i class='bi bi-trash'></i></a></td>";
                      echo "</tr>";
                   }
-                  
-               }else{
-                  echo "<tr><td> No Data Found </tr></td>";
+               } else {
+                  echo "<tr><td colspan='8'>No Data Found</td></tr>";
                }
 
-               // $sql = "SELECT COUNT(*) AS total from users";
-               // $result = $conn -> query($sql);
-               // $row = $result -> fetch_assoc();
-               // $total_record = $row["total"];
-               // $total_page = ceil($total_record / $record_per_page);
+               // Calculate the total number of pages
+               $sql = "SELECT COUNT(*) AS total FROM users WHERE id != $user_id";
+               $result = $conn->query($sql);
+               $row = $result->fetch_assoc();
+               $total_records = $row["total"];
+               $total_pages = ceil($total_records / $recordsPerPage);
 
-               // echo "<tr><td colspan='6'>";
-               // for($i = 1; $i <= $total_page; $i++){
-               //    echo "<a href=home.php?page=$i>$i</a>";
-               // }
-               // echo "</td></tr>";
+               echo "</tbody></table>";
 
+               // Pagination links
+               echo '<nav aria-label="Page navigation">';
+               echo '<ul class="pagination justify-content-center">';
+
+               if ($current_page > 1) {
+                  echo '<li class="page-item"><a class="page-link" href="home.php?page=' . ($current_page - 1) . '">Previous</a></li>';
+               } else {
+                  echo '<li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a></li>';
+               }
+
+               for ($i = 1; $i <= $total_pages; $i++) {
+                  if ($i == $current_page) {
+                     echo '<li class="page-item active" aria-current="page"><a class="page-link" href="#">' . $i . '<span class="visually-hidden">(current)</span></a></li>';
+                  } else {
+                     echo '<li class="page-item"><a class="page-link" href="home.php?page=' . $i . '">' . $i . '</a></li>';
+                  }
+               }
+
+               if ($current_page < $total_pages) {
+                  echo '<li class="page-item"><a class="page-link" href="home.php?page=' . ($current_page + 1) . '">Next</a></li>';
+               } else {
+                  echo '<li class="page-item disabled"><a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a></li>';
+               }
+
+               echo '</ul></nav>';
                ?>
-               
+
+
                <!-- Add more rows as needed -->
             </tbody>
          </table>
@@ -226,28 +261,10 @@
 
 
       <!-- Pagination -->
-      <nav aria-label="Page navigation">
-         <ul class="pagination justify-content-center">
-            <li class="page-item disabled">
-               <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-            </li>
-            <li class="page-item active" aria-current="page">
-               <a class="page-link" href="#">1 <span class="visually-hidden">(current)</span></a>
-            </li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-               <a class="page-link" href="#">Next</a>
-            </li>
-         </ul>
-      </nav>
+
    </div>
-   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-      crossorigin="anonymous"></script>
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"
-      integrity="sha384-Rx+T1VzGupg4BHQYs2gCW9It+akI2MM/mndMCy36UVfodzcJcF0GGLxZIzObiEfa"
-      crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js" integrity="sha384-Rx+T1VzGupg4BHQYs2gCW9It+akI2MM/mndMCy36UVfodzcJcF0GGLxZIzObiEfa" crossorigin="anonymous"></script>
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

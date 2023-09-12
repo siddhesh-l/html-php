@@ -56,11 +56,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email_error = validate_email($email);
     $email_error = check_email($conn, $email);
     $password_error = validate_password($password);
+    $hashed_password = hash('sha256', $password);
     $mobile_error = validate_mobile($mobile);
     
     if (empty($name_error) && empty($email_error) && empty($password_error) && empty($mobile_error)) {
         // Hash the password for security
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        
 
         // SQL query to insert data into the database
         $sql = "INSERT INTO `users`(`username`, `email`, `password`, `phone`, `gender`, `usertype`)
@@ -68,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($conn->query($sql) === TRUE) {
             echo "Registration successful!";
-            header('location:http://localhost/siddhesh/php2/home.php');
+            header('location:http://localhost/siddhesh/php2/login.php');
         } else {
             echo "Error: " . $sql . "<br>" . $conn->error;
         }
@@ -181,7 +182,7 @@ function check_email($conn,$email){
                         </div>
       
                         <button type="submit" class="btn btn-primary w-100" value="submit" name="submit" id="submit">Register</button><br>
-                        <p>Do not have any account? <a href="http://localhost/siddhesh/Forms/backend/login.php">Login</a></p>
+                        <p>Do not have any account? <a href="http://localhost/siddhesh/php2/login.php">Login</a></p>
                         
                      </form>
                </div>
