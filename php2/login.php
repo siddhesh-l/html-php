@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (empty($errors)) {
-        $sql = "SELECT id, username, email, password FROM users WHERE email = ?";
+        $sql = "SELECT id, username, email, usertype, password FROM users WHERE email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -58,6 +58,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['id'] = $row['id'];
                 $_SESSION['name'] = $row['username'];
                 $_SESSION['email'] = $row['email'];
+                $_SESSION['phone'] = $row['phone'];
+                $_SESSION['gender'] = $row['gender'];
+                $_SESSION['usertype'] = $row['usertype'];
 
                 
                 header('location: http://localhost/siddhesh/php2/home.php?user_id=' . $row['id']);

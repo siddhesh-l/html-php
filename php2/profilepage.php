@@ -1,3 +1,64 @@
+<?php 
+// error_reporting(0);
+//Call the Database File
+require_once 'db_helper.php';
+
+session_start();
+
+//Check the user is logged in, if not, redirect the log in page
+
+if(!isset($_SESSION['id'])){
+   header("location:http://localhost/siddhesh/php2/login.php");
+   exit;
+}
+
+$user_id = $_SESSION['id'];
+$user_name = $_SESSION['name'];
+$user_phone = $_SESSION['phone'];
+$user_gender = $_SESSION['gender'];
+
+
+$sql = "SELECT username, phone, email, gender FROM users WHERE id=$user_id";
+$result = mysqli_query($conn, $sql);
+
+if(mysqli_num_rows($result) > 0){
+   $row = mysqli_fetch_assoc($result);
+   $current_user_name = $row["username"];
+   $current_user_phone = $row["phone"];
+   $current_user_gender = $row["gender"];
+   $current_user_email = $row["email"];
+}
+
+//Handle form submission
+
+if($_SERVER['REQUEST_METHOD'] == "POST"){
+   // $user_id = $_SESSION['id'];
+   $new_username = mysqli_real_escape_string($conn, $_POST['new_username']);
+   $new_phone = mysqli_real_escape_string($conn, $_POST['new_phone']);
+   $new_gender = mysqli_real_escape_string($conn, $_POST['new_gender']);
+
+   $update_sql = "UPDATE users SET username = '$new_username', phone = '$new_phone', gender = '$new_gender' WHERE id = $user_id";
+
+
+   if(mysqli_query($conn, $update_sql)){
+      //Update session data with new information
+      $_SESSION['name'] = $new_user_name;
+      $_SESSION['phone'] = $new_user_phone;
+      $_SESSION['gender'] = $new_user_gender;
+
+
+      echo "Update data sussessfully";
+
+      header("location:http://localhost/siddhesh/php2/profilepage.php");
+   }else{
+      echo "error".mysqli_error($conn);
+   }
+}
+
+mysqli_close($conn);
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -43,8 +104,8 @@
                </p><br>
                <div class="card-body text-center">
                   <button class="btn btn-primary" id="edit-profile-pic-btn">Edit Profile</button><br><br><br>
-                  <h5 class="card-title mb-4">Siddhesh Lad</h5>
-                  <h6 class="card-subtitle mb-5">siddhesh@gmail.com</h6>
+                  <h5 class="card-title mb-4"><?php echo $current_user_name ?></h5>
+                  <h6 class="card-subtitle mb-5"><?php echo $current_user_email; ?></h6>
                   <input type="file" id="profile-pic-input" style="display: none;">
                </div>
             </div>
@@ -55,7 +116,7 @@
             <div class="card p-5">
                <div class="card-body">
                   <h3 class="card-title text-center">Personal Information</h3><br>
-                  <form>
+                  <form method="post" action="profilepage.php">
                      <div class="input-group">
                         <div class="input-group-prepend">
 
@@ -67,7 +128,7 @@
                                 <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/>
                               </svg>
                         </span>
-                        <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                        <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1" name="new_username" value="<?php echo $current_user_name; ?>">
                       </div><br>
                       <div class="input-group input-group-lg mb-3">
                         <span class="input-group-text" id="basic-addon1">
@@ -75,22 +136,22 @@
                               <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/>
                             </svg>
                         </span>
-                        <input type="number" class="form-control" placeholder="Mobile" aria-label="Mobile" aria-describedby="basic-addon1">
+                        <input type="number" class="form-control" placeholder="Mobile" aria-label="Mobile" name="new_phone" aria-describedby="basic-addon1" value="<?php echo $current_user_phone; ?>">
                       </div><br>
                      <div class="mb-3">
                         <label for="gender" class="mb-2"><h6>Gender</h6></label><br>
-                        <input type="radio" name="gender" id="male" value="male">
+                        <input type="radio" name="new_gender" id="male" value="male" <?php echo ($current_user_gender === 'male') ? 'checked' : '' ?>>
                         <label for="male">Male</label>
    
-                        <input type="radio" name="gender" id="female" value="female">
+                        <input type="radio" name="new_gender" id="female" value="female" <?php echo ($current_user_gender === 'female') ? 'checked' : '' ?>>
                         <label for="female">Female</label>
                      </div><br>
                      <div class="row">
                         <div class="col-md-6">
-                           <button type="Update" class="btn btn-outline-primary w-100">Update</button>
+                           <button type="Update" class="btn btn-outline-primary w-100" value="submit">Update</button>
                            </div>
                            <div class="col-md-6">
-                           <button type="Update" class="btn btn-outline-danger w-100">Cancle</button>
+                           <a href="profilepage.php"><button type="Update" class="btn btn-outline-danger w-100">Cancle</button></a>
                         </div>
                         
                      </div>

@@ -3,10 +3,15 @@ session_start();
 // var_dump($_SESSION);
 error_reporting(0);
 
+
+
 if (!isset($_SESSION['id'])) {
    header('location:http://localhost/siddhesh/php2/login.php');
    exit();
 }
+
+$is_admin = ($_SESSION['usertype'] === 'admin');
+
 
 // echo $_SESSION['id'];
 // echo $_SESSION['name'];
@@ -103,7 +108,7 @@ if (!isset($_SESSION['id'])) {
             <span class="navbar-toggler-icon"></span>
          </button>
          <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-            <a class="navbar-brand" href="profilepage.html">
+            <a class="navbar-brand" href="profilepage.php">
                <?php
                if (isset($_SESSION['name'])) {
                   echo "Welcome  " . $_SESSION['name'];
@@ -175,7 +180,13 @@ if (!isset($_SESSION['id'])) {
                   <th>Phone Number</th>
                   <th>Gender</th>
                   <th>User Type</th>
-                  <th colspan="2">Opration</th>
+                  <?php if($is_admin){
+                     ?>
+                     <th colspan='2'>Opration</th>
+                     <?php
+                     }?>
+                  
+                  
                </tr>
             </thead>
             <tbody class="tb">
@@ -199,6 +210,8 @@ if (!isset($_SESSION['id'])) {
                $sql = "SELECT * FROM users WHERE id != $user_id LIMIT $offset, $recordsPerPage";
                $result = mysqli_query($conn, $sql);
 
+               // $user_role = $_SESSION['usertype'];
+               // $is_admin = ($user_role == 'admin');
                // Check if there are records to display
                if (mysqli_num_rows($result) > 0) {
                   while ($row = mysqli_fetch_assoc($result)) {
@@ -209,8 +222,13 @@ if (!isset($_SESSION['id'])) {
                      echo "<td>" . $row["phone"] . "</td>";
                      echo "<td>" . $row["gender"] . "</td>";
                      echo "<td>" . $row["usertype"] . "</td>";
-                     echo "<td><a href='update.php?id=" . $row["id"] . "'><i class='bi bi-pencil-square'></i></a></td>";
-                     echo "<td><a href='delete.php?id=" . $row["id"] . "'><i class='bi bi-trash'></i></a></td>";
+                     if($is_admin){
+                        echo "<td><a href='update.php?id=" . $row["id"] . "'><i class='bi bi-pencil-square'></i></a></td>";
+                        echo "<td><a href='del...ete.php?id=" . $row["id"] . "' onclick='return checkedelete()'><i class='bi bi-trash'></i></a></td>";
+                     }
+                    
+                     
+                     
                      echo "</tr>";
                   }
                } else {
@@ -268,6 +286,12 @@ if (!isset($_SESSION['id'])) {
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+   <script>
+      function checkedelete(){
+         return confirm('Conform');
+      }
+   </script>
 </body>
 
 </html>
