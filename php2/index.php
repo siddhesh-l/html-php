@@ -41,6 +41,9 @@ error_reporting(0);
 include "db_helper.php";
 
 $name = $email = $password = $mobile = $gender = $usertype = "";
+$registration_date = date('d-m-y:H:i:s');
+
+
 
 // Retrieve and sanitize user input
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -62,10 +65,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($name_error) && empty($email_error) && empty($password_error) && empty($mobile_error)) {
         // Hash the password for security
         
+      //   if($_FILES['image']['size'] > 0){
+
+      //    //Handle image upload
+      //    $img_dir = "img/";
+      //    $image_path = $img_dir.$_FILES['image']['name'];
+      
+      //    if(move_uploaded_file($_FILES['image']['tmp_name'], $image_path)){
+      //       echo "image successfully inserted";
+      //    }else{
+      //       echo "error updateing image";
+      //       exit;
+      //    }
+      
+         $default_image_path = "default_profile.png";
+         $image_path = $default_image_path;
+      
 
         // SQL query to insert data into the database
-        $sql = "INSERT INTO `users`(`username`, `email`, `password`, `phone`, `gender`, `usertype`)
-                VALUES ('$name', '$email', '$hashed_password', '$mobile', '$gender', '$usertype')";
+        $sql = "INSERT INTO `users`(`user_image`, `username`, `email`, `password`, `phone`, `gender`, `usertype`, `date`)
+                VALUES ('$image_path','$name', '$email', '$hashed_password', '$mobile', '$gender', '$usertype','$registration_date')";
 
         if ($conn->query($sql) === TRUE) {
             echo "Registration successful!";
@@ -112,7 +131,7 @@ function validate_email($email) {
 function validate_password($password) {
     if (empty($password)) {
         return "Password is required.";
-    } elseif (!preg_match("/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}{,20}$/", $password)) {
+    } elseif (!preg_match("/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/", $password)) {
         return "Password must contain at least one uppercase letter, one lowercase letter, one digit, one special character, and be at least 8 characters long.";
     }
     return "";
@@ -167,7 +186,8 @@ function check_email($conn,$email){
                         </div>
                         <div class="mb-3">
                            <label for="gender" class="mb-2"><h6>Gender</h6></label><br>
-                           <input type="radio" name="gender" id="male" value="male"><label for="male">Male</label>
+                           <input type="radio" name="gender" id="male" value="male">
+                           <label for="male">Male</label>
       
                            <input type="radio" name="gender" id="female" value="female">
                            <label for="female">Female</label>

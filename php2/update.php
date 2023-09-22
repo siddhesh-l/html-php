@@ -60,12 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
       echo "error" . mysqli_error($conn);
    }
 }
-
-
-     
-
-
 mysqli_close($conn);
+
+session_write_close();
 
 ?>
 

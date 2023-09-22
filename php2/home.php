@@ -16,6 +16,8 @@ $is_admin = ($_SESSION['usertype'] === 'admin');
 // echo $_SESSION['id'];
 // echo $_SESSION['name'];
 // echo $_SESSION['email'];
+
+session_write_close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -114,6 +116,7 @@ $is_admin = ($_SESSION['usertype'] === 'admin');
                   echo "Welcome  " . $_SESSION['name'];
                } ?>
             </a>
+            form
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDarkDropdown" aria-controls="navbarNavDarkDropdown" aria-expanded="false" aria-label="Toggle navigation">
                <span class="navbar-toggler-icon"></span>
             </button>
@@ -175,6 +178,7 @@ $is_admin = ($_SESSION['usertype'] === 'admin');
             <thead class="thd">
                <tr>
                   <th>ID</th>
+                  <th>Profile image</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Phone Number</th>
@@ -217,15 +221,20 @@ $is_admin = ($_SESSION['usertype'] === 'admin');
                   while ($row = mysqli_fetch_assoc($result)) {
                      echo "<tr>";
                      echo "<td>" . $row["id"] . "</td>";
+                     $image_path = $row['user_image'];
+                     echo "$image_path";
+                     echo "<td><img src='$row[user_image]' alt='User Image' width='30' height='30'></td>"; // Add this line
                      echo "<td>" . $row["username"] . "</td>";
                      echo "<td>" . $row["email"] . "</td>";
                      echo "<td>" . $row["phone"] . "</td>";
                      echo "<td>" . $row["gender"] . "</td>";
                      echo "<td>" . $row["usertype"] . "</td>";
+                    
                      if($is_admin){
-                        echo "<td><a href='update.php?id=" . $row["id"] . "'><i class='bi bi-pencil-square'></i></a></td>";
-                        echo "<td><a href='del...ete.php?id=" . $row["id"] . "' onclick='return checkedelete()'><i class='bi bi-trash'></i></a></td>";
+                        echo "<td><a href='update.php?id=" . $row["id"] . "'><i class='bi bi-pencil-square' style='color:blue'></i></a></td>";
+                        echo "<td><a href='delete.php?id=" . $row["id"] . "' onclick='return checkedelete()'><i class='bi bi-trash' style='color:red'></i></a></td>";
                      }
+
                     
                      
                      
