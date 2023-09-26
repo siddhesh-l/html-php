@@ -63,20 +63,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mobile_error = validate_mobile($mobile);
     
     if (empty($name_error) && empty($email_error) && empty($password_error) && empty($mobile_error)) {
-        // Hash the password for security
-        
-      //   if($_FILES['image']['size'] > 0){
-
-      //    //Handle image upload
-      //    $img_dir = "img/";
-      //    $image_path = $img_dir.$_FILES['image']['name'];
-      
-      //    if(move_uploaded_file($_FILES['image']['tmp_name'], $image_path)){
-      //       echo "image successfully inserted";
-      //    }else{
-      //       echo "error updateing image";
-      //       exit;
-      //    }
       
          $default_image_path = "default_profile.png";
          $image_path = $default_image_path;

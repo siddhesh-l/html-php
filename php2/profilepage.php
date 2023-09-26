@@ -39,14 +39,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
    $new_username = mysqli_real_escape_string($conn, $_POST['new_username']);
    $new_phone = mysqli_real_escape_string($conn, $_POST['new_phone']);
    $new_gender = mysqli_real_escape_string($conn, $_POST['new_gender']);
-   
+
    //Handle profile image upload
 
    if (!empty($_FILES['new_profile_image']['name'])) {
       $target_dir = "img/";
       $target_file = $target_dir . basename($_FILES['new_profile_image']['name']);
       $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-      
+
       //Check if the upload file is an image
       $check = getimagesize($_FILES['new_profile_image']['tmp_name']);
 
@@ -54,37 +54,36 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
          $allowed_extensions = array("jpg", "png", "jpeg");
 
          if (in_array($imageFileType, $allowed_extensions)) {
-             if (move_uploaded_file($_FILES['new_profile_image']['tmp_name'], $target_file)) {
-                 $new_image = mysqli_real_escape_string($conn, $target_file);
-             } else {
-                 echo "Error uploading the image.";
-             }
+            if (move_uploaded_file($_FILES['new_profile_image']['tmp_name'], $target_file)) {
+               $new_image = mysqli_real_escape_string($conn, $target_file);
+            } else {
+               echo "Error uploading the image.";
+            }
          } else {
-             echo "Invalid file format. Allowed formats: JPG, PNG, JPEG";
+            echo "Invalid file format. Allowed formats: JPG, PNG, JPEG";
          }
-     } else {
+      } else {
          echo "The uploaded file is not an image.";
-     }
- } else {
-     // No new image uploaded
-     $new_image = $current_user_image;
- }
+      }
+   } else {
+      // No new image uploaded
+      $new_image = $current_user_image;
+      $update_sql = "UPDATE users SET username = '$new_username', phone = '$new_phone', gender = '$new_gender' WHERE id = $user_id";
 
- $update_sql = "UPDATE users SET username = '$new_username', phone = '$new_phone', gender = '$new_gender', user_image = '$new_image' WHERE id = $user_id";
+      if (mysqli_query($conn, $update_sql)) {
+         $_SESSION['name'] = $new_username;
+         $_SESSION['phone'] = $new_phone;
+         $_SESSION['gender'] = $new_gender;
+         $_SESSION['user_image'] = $new_image;
 
- if (mysqli_query($conn, $update_sql)) {
-     $_SESSION['name'] = $new_username;
-     $_SESSION['phone'] = $new_phone;
-     $_SESSION['gender'] = $new_gender;
-     $_SESSION['user_image'] = $new_image;
+         echo "Update data successfully";
 
-     echo "Update data successfully";
-
-     header("location:http://localhost/siddhesh/php2/home.php");
-     exit;
- } else {
-     echo "Error: " . mysqli_error($conn);
- }
+         header("location:http://localhost/siddhesh/php2/profilepage.php");
+         exit;
+      } else {
+         echo "Error: " . mysqli_error($conn);
+      }
+   }
 }
 
 session_write_close();
@@ -112,7 +111,7 @@ session_write_close();
       body {
          align-items: center;
          margin: 0;
-         padding-top: 90px;
+         padding-top: 0px;
          height: 100vh;
 
          background: linear-gradient(135deg, #d9ffbd, #9effdf, #fdbdff, #cfc2ff);
@@ -123,8 +122,52 @@ session_write_close();
 </head>
 
 <body>
-   <div class="container">
+   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+         </button>
+         <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+            <a class="navbar-brand" href="profilepage.php">
+               <?php
+               if (isset($_SESSION['name'])) {
+                  echo "Welcome  " . $_SESSION['name'];
+               } ?>
+            </a>
+            form
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDarkDropdown" aria-controls="navbarNavDarkDropdown" aria-expanded="false" aria-label="Toggle navigation">
+               <span class="navbar-toggler-icon"></span>
+            </button>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+            </ul>
+            <form class="d-flex" role="search">
+
+
+               <a href="home.php"><button class="btn btn-outline-warning me-2" type="button">Back</button></a>
+            </form>
+         </div>
+      </div>
+   </nav>
+   <div class="container pt-5">
       <div class="row justify-content-center">
+         <?php if (isset($_SESSION['success_message'])) : ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+               <?php echo $_SESSION['success_message']; ?>
+               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['success_message']); ?>
+         <?php endif; ?>
+
+         <!-- Check for error message and display it -->
+         <?php if (isset($_SESSION['error_message'])) : ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+               <?php echo $_SESSION['error_message']; ?>
+               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <?php unset($_SESSION['error_message']); ?>
+         <?php endif; ?>
+
          <!-- Profile Picture Card -->
          <div class="col-md-3">
             <div class="card align-items-center" style="height: 515px;"><br><br>
@@ -145,12 +188,12 @@ session_write_close();
                }
                mysqli_close($conn);
                ?>
-              
+
                <p>
                <h6>JPG or PNG no larger than 5 MB</h6>
                </p><br>
                <div class="card-body text-center">
-                  <form method="post" action="profilepage.php" enctype="multipart/form-data">
+                  <form method="post" action="update_profile_image.php" enctype="multipart/form-data">
                      <!-- Other form inputs -->
                      <!-- Add the provided form code here -->
                      <div class="input-group input-group-lg mb-3">
@@ -178,7 +221,7 @@ session_write_close();
             <div class="card p-5">
                <div class="card-body">
                   <h3 class="card-title text-center">Personal Information</h3><br>
-                  <form method="post" action="profilepage.php">
+                  <form method="post" action="update_personal_info.php">
                      <div class="input-group">
                         <div class="input-group-prepend">
 
@@ -215,7 +258,7 @@ session_write_close();
                            <button type="Update" class="btn btn-outline-primary w-100" value="submit">Update</button>
                         </div>
                         <div class="col-md-6">
-                           <a href="profilepage.php"><button type="Update" class="btn btn-outline-danger w-100">Cancle</button></a>
+                           <a href="profilepage.php"><button type="Update" class="btn btn-outline-danger w-100">Cancel</button></a>
                         </div>
 
                      </div>

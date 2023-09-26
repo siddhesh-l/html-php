@@ -9,7 +9,7 @@ if (!isset($_SESSION['id'])) {
 $is_admin = ($_SESSION['usertype'] === 'admin');
 
 if (!$is_admin) {
-   header('location: unauthorized.php'); // Redirect if the user is not an admin (optional)
+   header('location: login.php'); // Redirect if the user is not an admin (optional)
    exit();
 }
 
@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['id'])) {
    }
 } else {
    // Invalid request
-   header('location: invalid_request.php'); // Redirect if the request is invalid (optional)
+   header('location: login.php'); // Redirect if the request is invalid (optional)
    exit();
 }
 ?>

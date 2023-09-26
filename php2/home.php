@@ -184,6 +184,7 @@ session_write_close();
                   <th>Phone Number</th>
                   <th>Gender</th>
                   <th>User Type</th>
+                  <th>Date</th>
                   <?php if($is_admin){
                      ?>
                      <th colspan='2'>Opration</th>
@@ -221,14 +222,13 @@ session_write_close();
                   while ($row = mysqli_fetch_assoc($result)) {
                      echo "<tr>";
                      echo "<td>" . $row["id"] . "</td>";
-                     $image_path = $row['user_image'];
-                     echo "$image_path";
                      echo "<td><img src='$row[user_image]' alt='User Image' width='30' height='30'></td>"; // Add this line
                      echo "<td>" . $row["username"] . "</td>";
                      echo "<td>" . $row["email"] . "</td>";
                      echo "<td>" . $row["phone"] . "</td>";
                      echo "<td>" . $row["gender"] . "</td>";
                      echo "<td>" . $row["usertype"] . "</td>";
+                     echo "<td>" . $row["reg_date"] . "</td>";
                     
                      if($is_admin){
                         echo "<td><a href='update.php?id=" . $row["id"] . "'><i class='bi bi-pencil-square' style='color:blue'></i></a></td>";
@@ -298,7 +298,7 @@ session_write_close();
 
    <script>
       function checkedelete(){
-         return confirm('Conform');
+         return confirm('Confirm');
       }
    </script>
 </body>
